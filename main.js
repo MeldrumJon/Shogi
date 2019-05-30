@@ -1,10 +1,10 @@
 import App from './src/app.js'
 
-const cont = document.getElementById('board');
-const bCont = document.getElementById('bpieces');
-const wCont = document.getElementById('wpieces');
+const board = document.getElementById('board');
+const bKomadai = document.getElementById('black_komadai');
+const wKomadai = document.getElementById('white_komadai');
 
-var appVm = new App(cont, bCont, wCont);
+var appVm = new App(board, bKomadai, wKomadai);
 
 appVm.aiParameter.searchDepth = +getUrlParameter("sd", appVm.aiParameter.searchDepth);
 appVm.aiParameter.randomness = +getUrlParameter("rn", appVm.aiParameter.randomness);

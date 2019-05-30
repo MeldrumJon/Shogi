@@ -57,14 +57,62 @@ var position = new Position();
 //   return `translate(${x}, ${y}) rotate(${angle})`;
 // });
 
+function createPieceImg(piece) {
+	const img = document.createElement('img');
+	img.style.position = 'absolute';
+	img.style.width = VIEW_INFO.spacing + 'px';
+	img.style.height = VIEW_INFO.spacing + 'px';
+	img.style.transform= piece.black ? "rotate(0deg)" : "rotate(180deg)";
+	img.width = VIEW_INFO.spacing;
+	img.height = VIEW_INFO.spacing;
+	img.src = SRC_TABLE[piece.label];
+
+	img.piece = piece;
+	return img;
+}
+
+function createBlankSqr() {
+	const img = document.createElement('span');
+	img.style.position = 'absolute';
+	img.style.width = VIEW_INFO.spacing + 'px';
+	img.style.height = VIEW_INFO.spacing + 'px';
+	return img;
+}
+
 export default class App {
-	constructor(container, bContainer, wContainer) {
-		this.container = container;
-		this.bContainer = bContainer;
-		this.wContainer = wContainer;
+	_clearSelected() {
+		this.selectedPiece = null;
+		if (this.selectedView) {
+			this.selectedView.style.display = 'none';
+		}
+		if (this.selectedDestView) {
+			this.selectedDestView.style.display = 'none';
+		}
+	}
+	_showMove(fromIdx, toIdx) {
+		let from_x = ((fromIdx - 11) % 10);
+		let from_y = ((fromIdx - 11) / 10 | 0);
+		let to_x = ((toIdx - 11) % 10);
+		let to_y = ((toIdx - 11) / 10 | 0);
+
+		this.selectedView.style.top = VIEW_INFO.start_y + from_y * VIEW_INFO.spacing + 'px';
+		this.selectedView.style.left = VIEW_INFO.start_x + from_x * VIEW_INFO.spacing + 'px';
+		this.selectedView.style.display = 'inline-block';
+		this.selectedDestView.style.top = VIEW_INFO.start_y + to_y * VIEW_INFO.spacing + 'px';
+		this.selectedDestView.style.left = VIEW_INFO.start_x + to_x * VIEW_INFO.spacing + 'px';
+		this.selectedDestView.style.display = 'inline-block';
+	}
+
+	constructor(boardView, bKomadaiView, wKomadaiView) {
+		this.boardView = boardView;
+		this.bKomadaiView = bKomadaiView;
+		this.wKomadaiView = wKomadaiView;
+		this.selectedView = null;
+		this.selectedDestView = null;
+
 
 		this.pieces = [];
-		this.selectedPiece = null;
+		this._clearSelected()
 		this.lastMoveIndex = 0;
 		this.gameMode = null;
 		this.gameResult = null;
@@ -118,7 +166,7 @@ export default class App {
 		if (this.gameMode === null || this.gameResult !== null || position.count < 2)
 			return;
 
-		this.selectedPiece = null;
+		this._clearSelected()
 		position.undoMove();
 		position.undoMove();
 		this.promotionSelect.show = false;
@@ -129,7 +177,7 @@ export default class App {
 			return;
 
 		this.gameResult = null;
-		this.selectedPiece = null;
+		this._clearSelected()
 		position.undoMove();
 		this.promotionSelect.show = false;
 		this.draw();
@@ -138,86 +186,26 @@ export default class App {
 		this.gameMode = this.gameResult = null;
 		this.sound && sound.move();
 	}
-	_drawPiece(piece) {
-		const img = document.createElement('img');
-		img.style.position = 'absolute';
-		img.style.top = VIEW_INFO.start_y + VIEW_INFO.spacing*piece.y + 'px';
-		img.style.left = VIEW_INFO.start_x + VIEW_INFO.spacing*piece.x + 'px';
-		img.style.width = VIEW_INFO.spacing + 'px';
-		img.style.height = VIEW_INFO.spacing + 'px';
-		img.style.transform= piece.black ? "rotate(0deg)" : "rotate(180deg)";
-		img.width = VIEW_INFO.spacing;
-		img.height = VIEW_INFO.spacing;
-		img.src = SRC_TABLE[piece.label];
-
-		img.piece = piece;
-
-		img.innerHTML = piece.label;
-		let this_ = this;
-		img.onclick = function () {
-			this_.selectPiece(null, piece);
-		}
-		this.container.append(img);
-	}
-	_drawBPiece(piece) {
-		const img = document.createElement('img');
-		img.style.position = 'absolute';
-		img.style.top = (372 - 22 - piece.y * 40) + 'px';
-		img.style.left = (496 + 4 * piece.x_offset + 48 * piece.x) + 'px';
-		img.style.width = VIEW_INFO.spacing + 'px';
-		img.style.height = VIEW_INFO.spacing + 'px';
-		img.style.transform= piece.black ? "rotate(0deg)" : "rotate(180deg)";
-		img.width = VIEW_INFO.spacing;
-		img.height = VIEW_INFO.spacing;
-		img.src = SRC_TABLE[piece.label];
-
-		img.piece = piece;
-
-		img.innerHTML = piece.label;
-		let this_ = this;
-		img.onclick = function () {
-			this_.selectPiece(null, piece);
-		}
-		this.bContainer.append(img);
-	}
-	_drawWPiece(piece) {
-		const img = document.createElement('img');
-		img.style.position = 'absolute';
-		img.style.top = (22 + piece.y * 40) + 'px';
-		img.style.left = (20 + 4 * piece.x_offset + 48 * piece.x) + 'px';
-		img.style.width = VIEW_INFO.spacing + 'px';
-		img.style.height = VIEW_INFO.spacing + 'px';
-		img.style.transform= piece.black ? "rotate(0deg)" : "rotate(180deg)";
-		img.width = VIEW_INFO.spacing;
-		img.height = VIEW_INFO.spacing;
-		img.src = SRC_TABLE[piece.label];
-
-		img.piece = piece;
-
-		img.innerHTML = piece.label;
-		let this_ = this;
-		img.onclick = function () {
-			this_.selectPiece(null, piece);
-		}
-		this.wContainer.append(img);
-	}
-	_drawSquare(x, y) {
-		const img = document.createElement('span');
-		img.style.position = 'absolute';
-		img.style.top = VIEW_INFO.spacing*y + 'px';
-		img.style.left = VIEW_INFO.spacing*x + 'px';
-		img.style.width = VIEW_INFO.spacing + 'px';
-		img.style.height = VIEW_INFO.spacing + 'px';
-
-		img.innerHTML = ' ';
-		let this_ = this;
-		img.onclick = function () {
-			this_.selectSquare(null, x, y);
-		}
-		this.container.append(img);
-	}
 	draw() {
-		this.container.innerHTML = '';
+		this.boardView.innerHTML = '';
+		this.wKomadaiView.innerHTML = '';
+		this.bKomadaiView.innerHTML = '';
+
+		this.selectedView = document.createElement('span');
+		this.selectedView.style.position = 'absolute';
+		this.selectedView.style.width = VIEW_INFO.spacing + 'px';
+		this.selectedView.style.height = VIEW_INFO.spacing + 'px';
+		this.selectedView.style.border = '3px solid red';
+		this.selectedView.style.display = 'none';
+		this.boardView.append(this.selectedView)
+
+		this.selectedDestView = document.createElement('span');
+		this.selectedDestView.style.position = 'absolute';
+		this.selectedDestView.style.width = VIEW_INFO.spacing + 'px';
+		this.selectedDestView.style.height = VIEW_INFO.spacing + 'px';
+		this.selectedDestView.style.border = '3px solid blue';
+		this.selectedDestView.style.display = 'none';
+		this.boardView.append(this.selectedDestView)
 
 		var newPieces = [];
 		for (let i = 0; i < position.board.length; ++i) {
@@ -238,10 +226,28 @@ export default class App {
 					_uid: (i << 8) + sq,
 				};
 				newPieces.push(piece);
-				this._drawPiece(piece);
+
+				// Draw piece
+				const img = createPieceImg(piece);
+				img.style.top = VIEW_INFO.start_y + VIEW_INFO.spacing*piece.y + 'px';
+				img.style.left = VIEW_INFO.start_x + VIEW_INFO.spacing*piece.x + 'px';
+				let this_ = this;
+				img.onclick = function () {
+					this_.selectPiece(null, piece);
+				}
+				this.boardView.append(img);
 			}
 			else if (sq !== 0b1000000) { // DNE square
-				this._drawSquare(x, y);
+
+				// Draw blank square.
+				const img = createBlankSqr();
+				img.style.top = VIEW_INFO.start_y + VIEW_INFO.spacing*y + 'px';
+				img.style.left = VIEW_INFO.start_x + VIEW_INFO.spacing*x + 'px';
+				let this_ = this;
+				img.onclick = function () {
+					this_.selectSquare(null, x, y);
+				}
+				this.boardView.append(img);
 			}
 		}
 		for (let i = 0; i < position.bPieces.length; ++i) {
@@ -257,7 +263,16 @@ export default class App {
 					_uid: (1 << 16) + (i << 8) + j,
 				}
 				newPieces.push(piece);
-				this._drawBPiece(piece);
+
+				// Draw piece
+				const img = createPieceImg(piece);
+				img.style.top = (3*VIEW_INFO.spacing - piece.y * VIEW_INFO.spacing) + 'px';
+				img.style.left = (4 * piece.x_offset + 48 * piece.x) + 'px';
+				let this_ = this;
+				img.onclick = function () {
+					this_.selectPiece(null, piece);
+				}
+				this.bKomadaiView.append(img);
 			}
 		}
 		for (let i = 0; i < position.wPieces.length; ++i) {
@@ -273,7 +288,16 @@ export default class App {
 					_uid: (2 << 16) + (i << 8) + j,
 				};
 				newPieces.push(piece);
-				this._drawWPiece(piece);
+
+				// Draw piece
+				const img = createPieceImg(piece);
+				img.style.top = (piece.y * VIEW_INFO.spacing) + 'px';
+				img.style.left = (4 * piece.x_offset + VIEW_INFO.spacing * piece.x) + 'px';
+				let this_ = this;
+				img.onclick = function () {
+					this_.selectPiece(null, piece);
+				}
+				this.wKomadaiView.append(img);
 			}
 		}
 		this.pieces = newPieces;
@@ -286,7 +310,7 @@ export default class App {
 	}
 	move(fromIdx, toIdx) {
 		if (fromIdx === toIdx) {
-			this.selectedPiece = null;
+			this._clearSelected()
 			return;
 		}
 		switch (position.canMove(fromIdx, toIdx)) {
@@ -330,7 +354,9 @@ export default class App {
 		}
 
 		this.draw();
-		this.selectedPiece = null;
+		this._clearSelected()
+
+		this._showMove(fromIdx, toIdx);
 
 		var judgeResult = position.judge();
 		if (judgeResult) {
@@ -363,11 +389,14 @@ export default class App {
 			this.gameResult = ["あなたの勝ちです?"];
 			return;
 		}
+
 		position.doMove(move);
 		ai.settle(position);
 
 		this.promotionSelect.show = false;
 		this.draw();
+
+		this._showMove(move.fromIdx, move.toIdx);
 
 		var judgeResult = position.judge();
 		if (judgeResult) {
@@ -402,7 +431,7 @@ export default class App {
 			return;
 
 		this.gameMode = mode;
-		this.selectedPiece = null;
+		this._clearSelected()
 		position = new Position();
 		this.promotionSelect.show = false;
 		this.gameResult = null;
@@ -419,13 +448,17 @@ export default class App {
 			return;
 
 		if (this.selectedPiece === piece) {
-			this.selectedPiece = null;
-		} else if (this.selectedPiece &&
-							 this.selectedPiece.index & 0b1111000 &&
-							 piece.index & 0b1111000) {
-			this.move(this.selectedPiece.index, piece.index);
+			this._clearSelected()
 		} else if (piece.black === !!(position.player & 0b010000)) {
+			this._clearSelected()
 			this.selectedPiece = piece;
+			this.selectedView.style.top = VIEW_INFO.start_y + piece.y * VIEW_INFO.spacing + 'px';
+			this.selectedView.style.left = VIEW_INFO.start_x + piece.x * VIEW_INFO.spacing + 'px';
+			this.selectedView.style.display = 'inline-block';
+		} else if (this.selectedPiece &&
+						this.selectedPiece.index & 0b1111000 &&
+						piece.index & 0b1111000) {
+			this.move(this.selectedPiece.index, piece.index);
 		}
 	}
 	selectSquare(event, x, y) {
