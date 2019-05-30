@@ -1,0 +1,14 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+#board {
+	background: #d7bc82 url(res/board.svg);
+	width:555px;
+	height:555px;
+	position: relative;
+}
+#bpieces, #wpieces {
+	background: #d7bc82;
+	width:128px; height:171px;
+}

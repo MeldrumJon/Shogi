@@ -5,6 +5,13 @@ import * as sound from "./sound.js";
 import * as positionBook from "./positionBook.js";
 
 
+const VIEW_INFO = {
+	spacing: 58,
+	start_x: 16,
+	start_y: 16
+}
+
+
 const LABEL_TABLE = {
 	0b0001: "飛車",
 	0b0010: "角行",
@@ -22,6 +29,23 @@ const LABEL_TABLE = {
 	0b1111: "と金",
 };
 
+const SRC_TABLE = {
+	"飛車": "res/rook.svg",
+	"角行": "res/bishop.svg",
+	"金将": "res/goldgen.svg",
+	"銀将": "res/silvergen.svg",
+	"桂馬": "res/knight.svg",
+	"香車": "res/lance.svg",
+	"歩兵": "res/pawn.svg",
+	"玉将": "res/king.svg",
+	"竜王": "res/p_rook.svg",
+	"竜馬": "res/p_bishop.svg",
+	"成銀": "res/p_silvergen.svg",
+	"成桂": "res/p_knight.svg",
+	"成香": "res/p_lance.svg",
+	"と金": "res/p_pawn.svg"
+}
+
 var position = new Position();
 
 
@@ -34,8 +58,10 @@ var position = new Position();
 // });
 
 export default class App {
-	constructor(container) {
+	constructor(container, bContainer, wContainer) {
 		this.container = container;
+		this.bContainer = bContainer;
+		this.wContainer = wContainer;
 
 		this.pieces = [];
 		this.selectedPiece = null;
@@ -112,6 +138,84 @@ export default class App {
 		this.gameMode = this.gameResult = null;
 		this.sound && sound.move();
 	}
+	_drawPiece(piece) {
+		const img = document.createElement('img');
+		img.style.position = 'absolute';
+		img.style.top = VIEW_INFO.start_y + VIEW_INFO.spacing*piece.y + 'px';
+		img.style.left = VIEW_INFO.start_x + VIEW_INFO.spacing*piece.x + 'px';
+		img.style.width = VIEW_INFO.spacing + 'px';
+		img.style.height = VIEW_INFO.spacing + 'px';
+		img.style.transform= piece.black ? "rotate(0deg)" : "rotate(180deg)";
+		img.width = VIEW_INFO.spacing;
+		img.height = VIEW_INFO.spacing;
+		img.src = SRC_TABLE[piece.label];
+
+		img.piece = piece;
+
+		img.innerHTML = piece.label;
+		let this_ = this;
+		img.onclick = function () {
+			this_.selectPiece(null, piece);
+		}
+		this.container.append(img);
+	}
+	_drawBPiece(piece) {
+		const img = document.createElement('img');
+		img.style.position = 'absolute';
+		img.style.top = (372 - 22 - piece.y * 40) + 'px';
+		img.style.left = (496 + 4 * piece.x_offset + 48 * piece.x) + 'px';
+		img.style.width = VIEW_INFO.spacing + 'px';
+		img.style.height = VIEW_INFO.spacing + 'px';
+		img.style.transform= piece.black ? "rotate(0deg)" : "rotate(180deg)";
+		img.width = VIEW_INFO.spacing;
+		img.height = VIEW_INFO.spacing;
+		img.src = SRC_TABLE[piece.label];
+
+		img.piece = piece;
+
+		img.innerHTML = piece.label;
+		let this_ = this;
+		img.onclick = function () {
+			this_.selectPiece(null, piece);
+		}
+		this.bContainer.append(img);
+	}
+	_drawWPiece(piece) {
+		const img = document.createElement('img');
+		img.style.position = 'absolute';
+		img.style.top = (22 + piece.y * 40) + 'px';
+		img.style.left = (20 + 4 * piece.x_offset + 48 * piece.x) + 'px';
+		img.style.width = VIEW_INFO.spacing + 'px';
+		img.style.height = VIEW_INFO.spacing + 'px';
+		img.style.transform= piece.black ? "rotate(0deg)" : "rotate(180deg)";
+		img.width = VIEW_INFO.spacing;
+		img.height = VIEW_INFO.spacing;
+		img.src = SRC_TABLE[piece.label];
+
+		img.piece = piece;
+
+		img.innerHTML = piece.label;
+		let this_ = this;
+		img.onclick = function () {
+			this_.selectPiece(null, piece);
+		}
+		this.wContainer.append(img);
+	}
+	_drawSquare(x, y) {
+		const img = document.createElement('span');
+		img.style.position = 'absolute';
+		img.style.top = VIEW_INFO.spacing*y + 'px';
+		img.style.left = VIEW_INFO.spacing*x + 'px';
+		img.style.width = VIEW_INFO.spacing + 'px';
+		img.style.height = VIEW_INFO.spacing + 'px';
+
+		img.innerHTML = ' ';
+		let this_ = this;
+		img.onclick = function () {
+			this_.selectSquare(null, x, y);
+		}
+		this.container.append(img);
+	}
 	draw() {
 		this.container.innerHTML = '';
 
@@ -120,65 +224,56 @@ export default class App {
 			let sq = position.board[i],
 			label = LABEL_TABLE[sq & 0b1111];
 
-			const img = document.createElement('span');
-			img.style.position = 'absolute';
-			img.style.top = (2 + 41 * ((i - 11) / 10 | 0) + 20) + 'px';
-			img.style.left = (100 + 2 + 41 * ((i - 11) % 10) + 20) + 'px';
-			img.style.width = 41 + 'px';
-			img.style.height = 41 + 'px';
+			let x = ((i - 11) % 10);
+			let y = ((i - 11) / 10 | 0);
 
 			if (label) {
 				let piece = {
 					label: label,
 					black: !!(sq & 0b010000),
-					x: 100 + 2 + 41 * ((i - 11) % 10) + 20,
-					y: 2 + 41 * ((i - 11) / 10 | 0) + 20,
+					x: x,
+					y: y,
 					index: i,
 					promoted: !!((sq & 0b1111) !== 0b1000 && sq & 0b1000),
 					_uid: (i << 8) + sq,
 				};
 				newPieces.push(piece);
-
-				img.innerHTML = label;
-				let this_ = this;
-				img.onclick = function () {
-					this_.selectPiece(null, piece);
-				}
-				this.container.append(img);
+				this._drawPiece(piece);
 			}
-			else {
-				img.innerHTML = ' ';
-				let this_ = this;
-				img.onclick = function () {
-					this_.selectSquare(null, ((i - 11) % 10), ((i - 11) / 10 | 0));
-				}
-				this.container.append(img);
+			else if (sq !== 0b1000000) { // DNE square
+				this._drawSquare(x, y);
 			}
 		}
 		for (let i = 0; i < position.bPieces.length; ++i) {
 			for (let j = 0; j < position.bPieces[i]; ++j) {
-				newPieces.push({
+				let piece = {
 					label: LABEL_TABLE[i + 1],
 					black: true,
-					x: 496 + 4 * j + 48 * (i % 2),
-					y: 372 - 22 - (i / 2 | 0) * 40,
+					x: (i % 2),
+					y: (i / 2 | 0),
+					x_offset: j,
 					index: i,
 					promoted: false,
 					_uid: (1 << 16) + (i << 8) + j,
-				});
+				}
+				newPieces.push(piece);
+				this._drawBPiece(piece);
 			}
 		}
 		for (let i = 0; i < position.wPieces.length; ++i) {
 			for (let j = 0; j < position.wPieces[i]; ++j) {
-				newPieces.push({
+				let piece = {
 					label: LABEL_TABLE[i + 1],
 					black: false,
-					x: 20 + 4 * j + 48 * (i % 2),
-					y: 22 + (i / 2 | 0) * 40,
+					x: (i % 2),
+					y: (i / 2 | 0),
+					x_offset: j,
 					index: i,
 					promoted: false,
 					_uid: (2 << 16) + (i << 8) + j,
-				});
+				};
+				newPieces.push(piece);
+				this._drawWPiece(piece);
 			}
 		}
 		this.pieces = newPieces;
