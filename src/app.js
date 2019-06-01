@@ -57,11 +57,33 @@ var position = new Position();
 //   return `translate(${x}, ${y}) rotate(${angle})`;
 // });
 
+function createPieceImg(piece) {
+	const img = document.createElement('img');
+	img.style.position = 'absolute';
+	img.style.width = VIEW_INFO.spacing + 'px';
+	img.style.height = VIEW_INFO.spacing + 'px';
+	img.style.transform= piece.black ? "rotate(0deg)" : "rotate(180deg)";
+	img.width = VIEW_INFO.spacing;
+	img.height = VIEW_INFO.spacing;
+	img.src = SRC_TABLE[piece.label];
+
+	img.piece = piece;
+	return img;
+}
+
+function createBlankSqr() {
+	const img = document.createElement('span');
+	img.style.position = 'absolute';
+	img.style.width = VIEW_INFO.spacing + 'px';
+	img.style.height = VIEW_INFO.spacing + 'px';
+	return img;
+}
+
 export default class App {
-	constructor(container, bContainer, wContainer) {
-		this.container = container;
-		this.bContainer = bContainer;
-		this.wContainer = wContainer;
+	constructor(boardView, bKomadaiView, wKomadaiView) {
+		this.boardView = boardView;
+		this.bKomadaiView = bKomadaiView;
+		this.wKomadaiView = wKomadaiView;
 
 		this.pieces = [];
 		this.selectedPiece = null;
@@ -138,86 +160,12 @@ export default class App {
 		this.gameMode = this.gameResult = null;
 		this.sound && sound.move();
 	}
-	_drawPiece(piece) {
-		const img = document.createElement('img');
-		img.style.position = 'absolute';
-		img.style.top = VIEW_INFO.start_y + VIEW_INFO.spacing*piece.y + 'px';
-		img.style.left = VIEW_INFO.start_x + VIEW_INFO.spacing*piece.x + 'px';
-		img.style.width = VIEW_INFO.spacing + 'px';
-		img.style.height = VIEW_INFO.spacing + 'px';
-		img.style.transform= piece.black ? "rotate(0deg)" : "rotate(180deg)";
-		img.width = VIEW_INFO.spacing;
-		img.height = VIEW_INFO.spacing;
-		img.src = SRC_TABLE[piece.label];
-
-		img.piece = piece;
-
-		img.innerHTML = piece.label;
-		let this_ = this;
-		img.onclick = function () {
-			this_.selectPiece(null, piece);
-		}
-		this.container.append(img);
-	}
-	_drawBPiece(piece) {
-		const img = document.createElement('img');
-		img.style.position = 'absolute';
-		img.style.top = (372 - 22 - piece.y * 40) + 'px';
-		img.style.left = (496 + 4 * piece.x_offset + 48 * piece.x) + 'px';
-		img.style.width = VIEW_INFO.spacing + 'px';
-		img.style.height = VIEW_INFO.spacing + 'px';
-		img.style.transform= piece.black ? "rotate(0deg)" : "rotate(180deg)";
-		img.width = VIEW_INFO.spacing;
-		img.height = VIEW_INFO.spacing;
-		img.src = SRC_TABLE[piece.label];
-
-		img.piece = piece;
-
-		img.innerHTML = piece.label;
-		let this_ = this;
-		img.onclick = function () {
-			this_.selectPiece(null, piece);
-		}
-		this.bContainer.append(img);
-	}
-	_drawWPiece(piece) {
-		const img = document.createElement('img');
-		img.style.position = 'absolute';
-		img.style.top = (22 + piece.y * 40) + 'px';
-		img.style.left = (20 + 4 * piece.x_offset + 48 * piece.x) + 'px';
-		img.style.width = VIEW_INFO.spacing + 'px';
-		img.style.height = VIEW_INFO.spacing + 'px';
-		img.style.transform= piece.black ? "rotate(0deg)" : "rotate(180deg)";
-		img.width = VIEW_INFO.spacing;
-		img.height = VIEW_INFO.spacing;
-		img.src = SRC_TABLE[piece.label];
-
-		img.piece = piece;
-
-		img.innerHTML = piece.label;
-		let this_ = this;
-		img.onclick = function () {
-			this_.selectPiece(null, piece);
-		}
-		this.wContainer.append(img);
-	}
-	_drawSquare(x, y) {
-		const img = document.createElement('span');
-		img.style.position = 'absolute';
-		img.style.top = VIEW_INFO.spacing*y + 'px';
-		img.style.left = VIEW_INFO.spacing*x + 'px';
-		img.style.width = VIEW_INFO.spacing + 'px';
-		img.style.height = VIEW_INFO.spacing + 'px';
-
-		img.innerHTML = ' ';
-		let this_ = this;
-		img.onclick = function () {
-			this_.selectSquare(null, x, y);
-		}
-		this.container.append(img);
-	}
 	draw() {
-		this.container.innerHTML = '';
+		this.boardView.innerHTML = '';
+		this.wKomadaiView.innerHTML = '';
+		this.bKomadaiView.innerHTML = '';
+
+
 
 		var newPieces = [];
 		for (let i = 0; i < position.board.length; ++i) {
@@ -238,10 +186,28 @@ export default class App {
 					_uid: (i << 8) + sq,
 				};
 				newPieces.push(piece);
-				this._drawPiece(piece);
+
+				// Draw piece
+				const img = createPieceImg(piece);
+				img.style.top = VIEW_INFO.start_y + VIEW_INFO.spacing*piece.y + 'px';
+				img.style.left = VIEW_INFO.start_x + VIEW_INFO.spacing*piece.x + 'px';
+				let this_ = this;
+				img.onclick = function () {
+					this_.selectPiece(null, piece);
+			}
+				this.boardView.append(img);
 			}
 			else if (sq !== 0b1000000) { // DNE square
-				this._drawSquare(x, y);
+
+				// Draw blank square.
+				const img = createBlankSqr();
+				img.style.top = VIEW_INFO.start_y + VIEW_INFO.spacing*y + 'px';
+				img.style.left = VIEW_INFO.start_x + VIEW_INFO.spacing*x + 'px';
+				let this_ = this;
+				img.onclick = function () {
+					this_.selectSquare(null, x, y);
+			}
+				this.boardView.append(img);
 			}
 		}
 		for (let i = 0; i < position.bPieces.length; ++i) {
@@ -257,7 +223,16 @@ export default class App {
 					_uid: (1 << 16) + (i << 8) + j,
 				}
 				newPieces.push(piece);
-				this._drawBPiece(piece);
+
+				// Draw piece
+				const img = createPieceImg(piece);
+				img.style.top = (3*VIEW_INFO.spacing - piece.y * VIEW_INFO.spacing) + 'px';
+				img.style.left = (4 * piece.x_offset + 48 * piece.x) + 'px';
+				let this_ = this;
+				img.onclick = function () {
+					this_.selectPiece(null, piece);
+				}
+				this.bKomadaiView.append(img);
 			}
 		}
 		for (let i = 0; i < position.wPieces.length; ++i) {
@@ -273,8 +248,17 @@ export default class App {
 					_uid: (2 << 16) + (i << 8) + j,
 				};
 				newPieces.push(piece);
-				this._drawWPiece(piece);
+
+				// Draw piece
+				const img = createPieceImg(piece);
+				img.style.top = (piece.y * VIEW_INFO.spacing) + 'px';
+				img.style.left = (4 * piece.x_offset + VIEW_INFO.spacing * piece.x) + 'px';
+				let this_ = this;
+				img.onclick = function () {
+					this_.selectPiece(null, piece);
 			}
+				this.wKomadaiView.append(img);
+		}
 		}
 		this.pieces = newPieces;
 

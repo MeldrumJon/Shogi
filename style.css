@@ -3,12 +3,28 @@
 	padding: 0;
 }
 #board {
+	font: normal normal normal 14px/1 "Palatino Linotype", "Book Antiqua", Palatino, serif;
 	background: #d7bc82 url(res/board.svg);
 	width:555px;
 	height:555px;
 	position: relative;
 }
-#bpieces, #wpieces {
+#white_komadai, #black_komadai {
 	background: #d7bc82;
-	width:128px; height:171px;
+	width:116px;
+	height:232px;
+	position: relative;
+}
+
+#game {
+	margin: 0 auto;
+	border-collapse: collapse;
+}
+#white_piece_stand {
+	padding-right: 0.4rem;
+	vertical-align: top;
+}
+#black_piece_stand {
+	padding-left: 0.4rem;
+	vertical-align: bottom;
 }
