@@ -86,7 +86,7 @@ export default class App {
 		this.wKomadaiView = wKomadaiView;
 
 		this.pieces = [];
-		this._clearSelected()
+		this.selectedPiece = null;
 		this.lastMoveIndex = 0;
 		this.gameMode = null;
 		this.gameResult = null;
@@ -140,7 +140,7 @@ export default class App {
 		if (this.gameMode === null || this.gameResult !== null || position.count < 2)
 			return;
 
-		this._clearSelected()
+		this.selectedPiece = null;
 		position.undoMove();
 		position.undoMove();
 		this.promotionSelect.show = false;
@@ -151,7 +151,7 @@ export default class App {
 			return;
 
 		this.gameResult = null;
-		this._clearSelected()
+		this.selectedPiece = null;
 		position.undoMove();
 		this.promotionSelect.show = false;
 		this.draw();
@@ -164,6 +164,7 @@ export default class App {
 		this.boardView.innerHTML = '';
 		this.wKomadaiView.innerHTML = '';
 		this.bKomadaiView.innerHTML = '';
+
 
 
 		var newPieces = [];
@@ -269,7 +270,7 @@ export default class App {
 	}
 	move(fromIdx, toIdx) {
 		if (fromIdx === toIdx) {
-			this._clearSelected()
+			this.selectedPiece = null;
 			return;
 		}
 		switch (position.canMove(fromIdx, toIdx)) {
@@ -313,9 +314,7 @@ export default class App {
 		}
 
 		this.draw();
-		this._clearSelected()
-
-		this._showMove(fromIdx, toIdx);
+		this.selectedPiece = null;
 
 		var judgeResult = position.judge();
 		if (judgeResult) {
@@ -348,14 +347,11 @@ export default class App {
 			this.gameResult = ["あなたの勝ちです?"];
 			return;
 		}
-
 		position.doMove(move);
 		ai.settle(position);
 
 		this.promotionSelect.show = false;
 		this.draw();
-
-		this._showMove(move.fromIdx, move.toIdx);
 
 		var judgeResult = position.judge();
 		if (judgeResult) {
@@ -390,7 +386,7 @@ export default class App {
 			return;
 
 		this.gameMode = mode;
-		this._clearSelected()
+		this.selectedPiece = null;
 		position = new Position();
 		this.promotionSelect.show = false;
 		this.gameResult = null;
@@ -407,17 +403,13 @@ export default class App {
 			return;
 
 		if (this.selectedPiece === piece) {
-			this._clearSelected()
-		} else if (piece.black === !!(position.player & 0b010000)) {
-			this._clearSelected()
-			this.selectedPiece = piece;
-			this.selectedView.style.top = VIEW_INFO.start_y + piece.y * VIEW_INFO.spacing + 'px';
-			this.selectedView.style.left = VIEW_INFO.start_x + piece.x * VIEW_INFO.spacing + 'px';
-			this.selectedView.style.display = 'inline-block';
+			this.selectedPiece = null;
 		} else if (this.selectedPiece &&
-						this.selectedPiece.index & 0b1111000 &&
-						piece.index & 0b1111000) {
+							 this.selectedPiece.index & 0b1111000 &&
+							 piece.index & 0b1111000) {
 			this.move(this.selectedPiece.index, piece.index);
+		} else if (piece.black === !!(position.player & 0b010000)) {
+			this.selectedPiece = piece;
 		}
 	}
 	selectSquare(event, x, y) {
