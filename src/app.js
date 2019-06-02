@@ -57,17 +57,15 @@ var position = new Position();
 //   return `translate(${x}, ${y}) rotate(${angle})`;
 // });
 
-function createPieceImg(piece) {
+function createPieceImg(label, isBlack) {
 	const img = document.createElement('img');
 	img.style.position = 'absolute';
 	img.style.width = VIEW_INFO.spacing + 'px';
 	img.style.height = VIEW_INFO.spacing + 'px';
-	img.style.transform= piece.black ? "rotate(0deg)" : "rotate(180deg)";
+	img.style.transform= isBlack ? "rotate(0deg)" : "rotate(180deg)";
 	img.width = VIEW_INFO.spacing;
 	img.height = VIEW_INFO.spacing;
-	img.src = SRC_TABLE[piece.label];
-
-	img.piece = piece;
+	img.src = SRC_TABLE[label];
 	return img;
 }
 
@@ -80,10 +78,36 @@ function createBlankSqr() {
 }
 
 export default class App {
+	_showPromotion() {
+		this.promotionView.innerHTML = '';
+
+		const unpromImg = createPieceImg(this.promotionSelect.unpromotedPiece.label, this.promotionSelect.unpromotedPiece.black);
+		const proImg = createPieceImg(this.promotionSelect.promotedPiece.label, this.promotionSelect.promotedPiece.black);
+		unpromImg.style.left = 0;
+		proImg.style.right = 0;
+
+		let this_ = this;
+		unpromImg.onclick = function () {
+			this_.selectUnpromote();
+		};
+		proImg.onclick = function () {
+			this_.selectPromote();
+		};
+
+		this.promotionView.style.top = VIEW_INFO.start_y + VIEW_INFO.spacing*this.promotionSelect.y + 'px';
+		this.promotionView.style.left = VIEW_INFO.start_x + VIEW_INFO.spacing*(this.promotionSelect.x-1/2) + 'px';
+		this.promotionView.append(unpromImg, proImg);
+
+		this.boardView.append(this.promotionView);
+	}
+
 	constructor(boardView, bKomadaiView, wKomadaiView) {
 		this.boardView = boardView;
 		this.bKomadaiView = bKomadaiView;
 		this.wKomadaiView = wKomadaiView;
+
+		this.selectView = null;
+		this.destView = null;
 
 		this.pieces = [];
 		this.selectedPiece = null;
@@ -111,6 +135,13 @@ export default class App {
 				promoted: true,
 			},
 		};
+		this.promotionView = document.createElement('span');
+		this.promotionView.style.width = 2*VIEW_INFO.spacing + 'px';
+		this.promotionView.style.height = VIEW_INFO.spacing + 'px';
+		this.promotionView.style.background = 'rgba(0, 0, 0, 0.2)';
+		this.promotionView.style.display = 'inline-block';
+		this.promotionView.style.position = 'absolute';
+
 		this.aiParameter = {
 			time: 300,
 			searchDepth: 5,
@@ -165,7 +196,49 @@ export default class App {
 		this.wKomadaiView.innerHTML = '';
 		this.bKomadaiView.innerHTML = '';
 
+		let this_ = this;
+		function drawSelection(img, i, color) {
+			img.style.position = 'absolute';
 
+			if (i < 7 && color === 'white') {
+				let x = (i % 2);
+				let y = (i / 2 | 0);
+				img.style.top = (3*VIEW_INFO.spacing - y * VIEW_INFO.spacing) + 'px';
+				img.style.left = (4 * 0 + 48 * x) + 'px';
+				this_.bKomadaiView.append(img);
+			}
+			else if (i < 7 && color === 'black') {
+				let x = (i % 2);
+				let y = (i / 2 | 0);
+				img.style.top = (y * VIEW_INFO.spacing) + 'px';
+				img.style.left = (4 * 0 + VIEW_INFO.spacing * x) + 'px';
+				this_.wKomadaiView.append(img);
+			}
+			else {
+				let x = ((i - 11) % 10);
+				let y = ((i - 11) / 10 | 0);
+				img.style.top = VIEW_INFO.start_y + VIEW_INFO.spacing*y + 'px';
+				img.style.left = VIEW_INFO.start_x + VIEW_INFO.spacing*x + 'px';
+				this_.boardView.append(img);
+			}
+		}
+
+		if (this.selectView !== null) {
+			const img = document.createElement('span');
+			img.style.width = VIEW_INFO.spacing + 'px';
+			img.style.height = VIEW_INFO.spacing + 'px';
+			img.style.border = '1px solid #00f';
+
+			drawSelection(img, this.selectView.idx, this.selectView.color);
+		}
+		if (this.destView !== null) {
+			const img = document.createElement('span');
+			img.style.width = VIEW_INFO.spacing + 'px';
+			img.style.height = VIEW_INFO.spacing + 'px';
+			img.style.border = '1px solid #f00';
+
+			drawSelection(img, this.destView.idx, this.destView.color);
+		}
 
 		var newPieces = [];
 		for (let i = 0; i < position.board.length; ++i) {
@@ -176,9 +249,17 @@ export default class App {
 			let y = ((i - 11) / 10 | 0);
 
 			if (label) {
+				// Draw piece
+				let isBlack = !!(sq & 0b010000);
+
+				const img = createPieceImg(label, isBlack);
+				img.style.top = VIEW_INFO.start_y + VIEW_INFO.spacing*y + 'px';
+				img.style.left = VIEW_INFO.start_x + VIEW_INFO.spacing*x + 'px';
 				let piece = {
+					type: 'board',
+					img: img,
 					label: label,
-					black: !!(sq & 0b010000),
+					black: isBlack,
 					x: x,
 					y: y,
 					index: i,
@@ -187,47 +268,47 @@ export default class App {
 				};
 				newPieces.push(piece);
 
-				// Draw piece
-				const img = createPieceImg(piece);
-				img.style.top = VIEW_INFO.start_y + VIEW_INFO.spacing*piece.y + 'px';
-				img.style.left = VIEW_INFO.start_x + VIEW_INFO.spacing*piece.x + 'px';
 				let this_ = this;
 				img.onclick = function () {
 					this_.selectPiece(null, piece);
-			}
+				}
 				this.boardView.append(img);
 			}
 			else if (sq !== 0b1000000) { // DNE square
-
-				// Draw blank square.
 				const img = createBlankSqr();
 				img.style.top = VIEW_INFO.start_y + VIEW_INFO.spacing*y + 'px';
 				img.style.left = VIEW_INFO.start_x + VIEW_INFO.spacing*x + 'px';
 				let this_ = this;
 				img.onclick = function () {
 					this_.selectSquare(null, x, y);
-			}
+				}
 				this.boardView.append(img);
 			}
 		}
 		for (let i = 0; i < position.bPieces.length; ++i) {
 			for (let j = 0; j < position.bPieces[i]; ++j) {
+				let label = LABEL_TABLE[i + 1];
+				let x = (i % 2);
+				let y = (i / 2 | 0);
+				let x_offset = j;
+
+				const img = createPieceImg(label, true);
+				img.style.top = (3*VIEW_INFO.spacing - y * VIEW_INFO.spacing) + 'px';
+				img.style.left = (4 * x_offset + 48 * x) + 'px';
 				let piece = {
-					label: LABEL_TABLE[i + 1],
+					type: 'black_komadai',
+					img: img,
+					label: label,
 					black: true,
-					x: (i % 2),
-					y: (i / 2 | 0),
-					x_offset: j,
+					x: x,
+					y: y,
+					x_offset: x_offset,
 					index: i,
 					promoted: false,
 					_uid: (1 << 16) + (i << 8) + j,
 				}
 				newPieces.push(piece);
 
-				// Draw piece
-				const img = createPieceImg(piece);
-				img.style.top = (3*VIEW_INFO.spacing - piece.y * VIEW_INFO.spacing) + 'px';
-				img.style.left = (4 * piece.x_offset + 48 * piece.x) + 'px';
 				let this_ = this;
 				img.onclick = function () {
 					this_.selectPiece(null, piece);
@@ -237,28 +318,34 @@ export default class App {
 		}
 		for (let i = 0; i < position.wPieces.length; ++i) {
 			for (let j = 0; j < position.wPieces[i]; ++j) {
+				let label = LABEL_TABLE[i + 1];
+				let x = (i % 2);
+				let y = (i / 2 | 0);
+				let x_offset = j;
+
+				const img = createPieceImg(label, false);
+				img.style.top = (y * VIEW_INFO.spacing) + 'px';
+				img.style.left = (4 * x_offset + VIEW_INFO.spacing * x) + 'px';
 				let piece = {
+					type: 'white_komadai',
+					img: img,
 					label: LABEL_TABLE[i + 1],
 					black: false,
-					x: (i % 2),
-					y: (i / 2 | 0),
-					x_offset: j,
+					x: x,
+					y: y,
+					x_offset: x_offset,
 					index: i,
 					promoted: false,
 					_uid: (2 << 16) + (i << 8) + j,
 				};
 				newPieces.push(piece);
 
-				// Draw piece
-				const img = createPieceImg(piece);
-				img.style.top = (piece.y * VIEW_INFO.spacing) + 'px';
-				img.style.left = (4 * piece.x_offset + VIEW_INFO.spacing * piece.x) + 'px';
 				let this_ = this;
 				img.onclick = function () {
 					this_.selectPiece(null, piece);
-			}
+				}
 				this.wKomadaiView.append(img);
-		}
+			}
 		}
 		this.pieces = newPieces;
 
@@ -288,8 +375,9 @@ export default class App {
 			this.promotionSelect.show = true;
 			this.promotionSelect.fromIdx = fromIdx;
 			this.promotionSelect.toIdx = toIdx;
-			this.promotionSelect.x = 102 + 41 * ((toIdx - 11) % 10) + 20;
-			this.promotionSelect.y = 2 + 41 * ((toIdx - 11) / 10 | 0);
+			this.promotionSelect.x = (toIdx - 11) % 10;
+			this.promotionSelect.y = (toIdx - 11) / 10 | 0;
+			this._showPromotion();
 			break;
 		}
 	}
@@ -313,8 +401,18 @@ export default class App {
 			});
 		}
 
+		this.selectView = {
+			idx: fromIdx,
+			color: 'white'
+		};
+		this.destView = {
+			idx: toIdx,
+			color: 'white'
+		};
 		this.draw();
 		this.selectedPiece = null;
+		this.selectView = null;
+		this.destView = null;
 
 		var judgeResult = position.judge();
 		if (judgeResult) {
@@ -351,7 +449,18 @@ export default class App {
 		ai.settle(position);
 
 		this.promotionSelect.show = false;
+
+		this.selectView = {
+			idx: move.fromIdx,
+			color: 'black'
+		}
+		this.destView = {
+			idx: move.toIdx,
+			color: 'black'
+		}
 		this.draw();
+		this.selectView = null;
+		this.destView = null;
 
 		var judgeResult = position.judge();
 		if (judgeResult) {
@@ -367,19 +476,22 @@ export default class App {
 	gameEnd(winner, message) {
 		var reason = message ? "[" + message + "]" : "";
 		if (winner === null) {
-			this.gameResult = ["引き分けです", reason];
+			this.gameResult = ["It is a draw.", reason];
 		} else {
 			switch (this.gameMode) {
 			case "sente":
 			case "gote":
-				this.gameResult = [winner === "black" ? "あなたの勝ちです" : "あなたの負けです", reason];
+				this.gameResult = [winner === "black" ? "You win!" : "You lose.", reason];
 			break;
 			case "free":
-				this.gameResult = [winner === "black" ? "先手の勝ちです" : "後手の勝ちです", reason];
+				this.gameResult = [winner === "black" ? "Black wins!" : "White wins!", reason];
 				break;
 			}
 		}
 		this.sound && sound.gameEnd();
+		this.gameMode = null;
+		alert(this.gameResult);
+		console.log(this.gameResult);
 	}
 	gameStart(mode) {
 		if (["sente", "gote", "free"].indexOf(mode) === -1)
@@ -404,12 +516,21 @@ export default class App {
 
 		if (this.selectedPiece === piece) {
 			this.selectedPiece = null;
+			this.selectView = null;
+			this.destView = null;
+			this.draw();
+		} else if (piece.black === !!(position.player & 0b010000)) {
+			this.selectedPiece = piece;
+			this.selectView = {
+				idx: piece.index,
+				color: 'white'
+			};
+			this.destView = null;
+			this.draw();
 		} else if (this.selectedPiece &&
 							 this.selectedPiece.index & 0b1111000 &&
 							 piece.index & 0b1111000) {
 			this.move(this.selectedPiece.index, piece.index);
-		} else if (piece.black === !!(position.player & 0b010000)) {
-			this.selectedPiece = piece;
 		}
 	}
 	selectSquare(event, x, y) {
