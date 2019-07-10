@@ -1,3 +1,8 @@
+/*
+ Easy way to mirror board:
+ if (idx>10) { idx = 110-x }
+*/
+
 import Position from "./position.js";
 import * as ai from "./ai.js";
 import * as bits from "./bits.js";
@@ -386,6 +391,7 @@ export default class App {
 		}
 	}
 	move_(fromIdx, toIdx, promote) {
+		let turn = (position.player === 0b100000) ? 'black' : 'white'; // Who's turn is this: white or black?
 		if (fromIdx & 0b1111000) {
 			let from = position.board[fromIdx];
 			position.doMove({
@@ -407,11 +413,11 @@ export default class App {
 
 		this.selectView = {
 			idx: fromIdx,
-			color: 'white'
+			color: turn
 		};
 		this.destView = {
 			idx: toIdx,
-			color: 'white'
+			color: turn
 		};
 		this.draw();
 		this.selectedPiece = null;
@@ -426,8 +432,9 @@ export default class App {
 
 		this.sound && sound[position.check ? "check" : "move"]();
 
-		if ((this.gameMode === "sente" | this.gameMode === "gote") && position.player === 0b100000)
-			window.setTimeout(() => this.moveByAI(), 100);
+		if ((this.gameMode === "sente" | this.gameMode === "gote") && position.player === 0b100000) {
+			window.setTimeout(() => this.moveByAI(), 100); // Delay for sound effects
+		}
 	}
 	moveByAI(after) {
 		if (this.gameMode === null)
@@ -512,10 +519,11 @@ export default class App {
 
 		if (this.gameMode === "gote") {
 			position.player ^= 0b110000;
-			window.setTimeout(() => this.moveByAI(), 300);
+			window.setTimeout(() => this.moveByAI(), 300); // Delay for sound effects
 		}
 	}
 	selectPiece(event, piece) {
+		let turn = (position.player === 0b100000) ? 'black' : 'white'; // Who's turn is this: white or black?
 		if (this.gameMode === null || // Game hasn't started or it's other player's turn.
 				(position.player === 0b100000 && this.gameMode !== 'free'))
 			return;
@@ -529,7 +537,7 @@ export default class App {
 			this.selectedPiece = piece;
 			this.selectView = {
 				idx: piece.index,
-				color: 'white'
+				color: turn
 			};
 			this.destView = null;
 			this.draw();

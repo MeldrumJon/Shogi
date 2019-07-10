@@ -11,7 +11,7 @@ appVm.aiParameter.randomness = +getUrlParameter("rn", appVm.aiParameter.randomne
 appVm.enableDebug = !!getUrlParameter("debug", false);
 appVm.init();
 
-appVm.gameStart('gote');
+appVm.gameStart('free');
 
 appVm.printBoard();
 

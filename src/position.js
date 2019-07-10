@@ -43,6 +43,7 @@ export default class Position {
 				this.board[i+101]   = 0b1000000;
 			}
 
+			// Top half of the board
 			this.board[11 + 10 * 0 + 0] = 0b100110;
 			this.board[11 + 10 * 0 + 1] = 0b100101;
 			this.board[11 + 10 * 0 + 2] = 0b100100;
@@ -52,12 +53,13 @@ export default class Position {
 			this.board[11 + 10 * 0 + 6] = 0b100100;
 			this.board[11 + 10 * 0 + 7] = 0b100101;
 			this.board[11 + 10 * 0 + 8] = 0b100110;
-			this.board[11 + 10 * 1 + 1] = 0b100001;
+			this.board[11 + 10 * 1 + 1] = 0b100001; // High -value pieces
 			this.board[11 + 10 * 1 + 7] = 0b100010;
 
-			for (let i = 0; i < 9; ++i)
+			for (let i = 0; i < 9; ++i) // pawns
 				this.board[11 + 10 * 2 + i] = 0b100111;
 
+			// Bottom half of board
 			this.board[11 + 10 * 8 + 0] = 0b010110;
 			this.board[11 + 10 * 8 + 1] = 0b010101;
 			this.board[11 + 10 * 8 + 2] = 0b010100;
@@ -67,10 +69,10 @@ export default class Position {
 			this.board[11 + 10 * 8 + 6] = 0b010100;
 			this.board[11 + 10 * 8 + 7] = 0b010101;
 			this.board[11 + 10 * 8 + 8] = 0b010110;
-			this.board[11 + 10 * 7 + 1] = 0b010010;
+			this.board[11 + 10 * 7 + 1] = 0b010010; // High-value pieces
 			this.board[11 + 10 * 7 + 7] = 0b010001;
 
-			for (let i = 0; i < 9; ++i)
+			for (let i = 0; i < 9; ++i) // Pawns
 				this.board[11 + 10 * 6 + i] = 0b010111;
 		}
 	}
