@@ -809,7 +809,7 @@ export default class Position {
 			if (this.history[this.count-1].fromIdx === 6) {
 				return {
 					winner: this.player === 0b010000 ? "black" : "white",
-					reason: "打ち歩詰め",
+					reason: "Checkmate",
 				};
 			} else {
 				return {

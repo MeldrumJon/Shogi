@@ -14,6 +14,7 @@
 	width:116px;
 	height:232px;
 	position: relative;
+	border: 1px solid #000;
 }
 
 #game {
@@ -21,10 +22,14 @@
 	border-collapse: collapse;
 }
 #white_piece_stand {
-	padding-right: 0.4rem;
+	padding-right: 16px;
 	vertical-align: top;
 }
 #black_piece_stand {
-	padding-left: 0.4rem;
+	padding-left: 16px;
 	vertical-align: bottom;
+}
+.stand_wrapper {
+	background: #d7bc82;
+	padding: 16px;
 }

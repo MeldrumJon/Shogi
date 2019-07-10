@@ -138,9 +138,10 @@ export default class App {
 		this.promotionView = document.createElement('span');
 		this.promotionView.style.width = 2*VIEW_INFO.spacing + 'px';
 		this.promotionView.style.height = VIEW_INFO.spacing + 'px';
-		this.promotionView.style.background = 'rgba(0, 0, 0, 0.2)';
+		this.promotionView.style.background = 'rgba(0, 0, 0, 0.5)';
 		this.promotionView.style.display = 'inline-block';
 		this.promotionView.style.position = 'absolute';
+		this.promotionView.style.zIndex = 50;
 
 		this.aiParameter = {
 			time: 300,
@@ -199,6 +200,7 @@ export default class App {
 		let this_ = this;
 		function drawSelection(img, i, color) {
 			img.style.position = 'absolute';
+			img.style.zIndex = 20;
 
 			if (i < 7 && color === 'white') {
 				let x = (i % 2);
@@ -295,6 +297,7 @@ export default class App {
 				const img = createPieceImg(label, true);
 				img.style.top = (3*VIEW_INFO.spacing - y * VIEW_INFO.spacing) + 'px';
 				img.style.left = (4 * x_offset + 48 * x) + 'px';
+				img.style.zIndex = 10-x_offset;
 				let piece = {
 					type: 'black_komadai',
 					img: img,
@@ -326,6 +329,7 @@ export default class App {
 				const img = createPieceImg(label, false);
 				img.style.top = (y * VIEW_INFO.spacing) + 'px';
 				img.style.left = (4 * x_offset + VIEW_INFO.spacing * x) + 'px';
+				img.style.zIndex = 10-x_offset;
 				let piece = {
 					type: 'white_komadai',
 					img: img,
@@ -442,7 +446,7 @@ export default class App {
 			this.aiParameter.searchDepth = move.depth;
 
 		if (move === null) {
-			this.gameResult = ["あなたの勝ちです?"];
+			this.gameResult = ["You win!"];
 			return;
 		}
 		position.doMove(move);
@@ -505,13 +509,15 @@ export default class App {
 		this.draw();
 		this.sound && sound.gameStart();
 
+
 		if (this.gameMode === "gote") {
 			position.player ^= 0b110000;
 			window.setTimeout(() => this.moveByAI(), 300);
 		}
 	}
 	selectPiece(event, piece) {
-		if (this.gameMode === null)
+		if (this.gameMode === null || // Game hasn't started or it's other player's turn.
+				(position.player === 0b100000 && this.gameMode !== 'free'))
 			return;
 
 		if (this.selectedPiece === piece) {
@@ -534,7 +540,8 @@ export default class App {
 		}
 	}
 	selectSquare(event, x, y) {
-		if (this.gameMode === null)
+		if (this.gameMode === null || // Game hasn't started or it's other player's turn.
+				(position.player === 0b100000 && this.gameMode !== 'free'))
 			return;
 
 		if (this.selectedPiece !== null)
