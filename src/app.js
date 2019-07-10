@@ -8,6 +8,7 @@ import * as ai from "./ai.js";
 import * as bits from "./bits.js";
 import * as sound from "./sound.js";
 import * as positionBook from "./positionBook.js";
+import * as comm from './comm.js'
 
 
 const VIEW_INFO = {
@@ -391,6 +392,7 @@ export default class App {
 		}
 	}
 	move_(fromIdx, toIdx, promote) {
+		console.log("move_", fromIdx, toIdx, promote);
 		let turn = (position.player === 0b100000) ? 'black' : 'white'; // Who's turn is this: white or black?
 		if (fromIdx & 0b1111000) {
 			let from = position.board[fromIdx];
@@ -426,6 +428,7 @@ export default class App {
 
 		var judgeResult = position.judge();
 		if (judgeResult) {
+			// TODO: send move here too?
 			this.gameEnd(judgeResult.winner, judgeResult.reason || "");
 			return;
 		}
@@ -433,7 +436,16 @@ export default class App {
 		this.sound && sound[position.check ? "check" : "move"]();
 
 		if ((this.gameMode === "sente" | this.gameMode === "gote") && position.player === 0b100000) {
-			window.setTimeout(() => this.moveByAI(), 100); // Delay for sound effects
+			if (!this.online) {
+				window.setTimeout(() => this.moveByAI(), 100); // Delay for sound effects
+			}
+			else {
+				comm.send('move', {
+					fromIdx: (fromIdx > 10) ? 110 - fromIdx : fromIdx,
+					toIdx: (toIdx > 10) ? 110 - toIdx : toIdx,
+					promote: promote
+				});
+			}
 		}
 	}
 	moveByAI(after) {
@@ -504,11 +516,12 @@ export default class App {
 		alert(this.gameResult);
 		console.log(this.gameResult);
 	}
-	gameStart(mode) {
+	gameStart(mode, online=false) {
 		if (["sente", "gote", "free"].indexOf(mode) === -1)
 			return;
 
 		this.gameMode = mode;
+		this.online = online;
 		this.selectedPiece = null;
 		position = new Position();
 		this.promotionSelect.show = false;
@@ -516,10 +529,11 @@ export default class App {
 		this.draw();
 		this.sound && sound.gameStart();
 
-
 		if (this.gameMode === "gote") {
 			position.player ^= 0b110000;
-			window.setTimeout(() => this.moveByAI(), 300); // Delay for sound effects
+			if (!online) {
+				window.setTimeout(() => this.moveByAI(), 300); // Delay for sound effects
+			}
 		}
 	}
 	selectPiece(event, piece) {
