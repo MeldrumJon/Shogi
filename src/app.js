@@ -71,7 +71,12 @@ function createPieceImg(label, isBlack) {
 	img.style.transform= isBlack ? "rotate(0deg)" : "rotate(180deg)";
 	img.width = VIEW_INFO.spacing;
 	img.height = VIEW_INFO.spacing;
-	img.src = SRC_TABLE[label];
+	if (label === '玉将' && !isBlack) {
+		img.src = "res/kingopposing.svg";
+	}
+	else {
+		img.src = SRC_TABLE[label];
+	}
 	return img;
 }
 

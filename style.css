@@ -2,25 +2,40 @@
 	margin: 0;
 	padding: 0;
 }
-#board {
+
+body {
 	font: normal normal normal 14px/1 "Palatino Linotype", "Book Antiqua", Palatino, serif;
-	background: #d7bc82 url(res/board.svg);
-	width:555px;
-	height:555px;
-	position: relative;
-}
-#white_komadai, #black_komadai {
-	background: #d7bc82;
-	width:116px;
-	height:232px;
-	position: relative;
-	border: 1px solid #000;
 }
 
 #game {
 	margin: 0 auto;
 	border-collapse: collapse;
 }
+
+.stand_wrapper {
+	background: #DCC7AA;
+	background-image: url('res/wood.png');
+	padding: 16px;
+	border: #777 solid 1px;
+}
+#white_komadai, #black_komadai {
+	width:116px;
+	height:232px;
+	position: relative;
+}
+
+#board_wrapper {
+	background: #DCC7AA;
+	background-image: url('res/wood.png');
+	border: #777 solid 1px;
+}
+#board {
+	background: url(res/board.svg) transparent;
+	width:555px;
+	height:555px;
+	position: relative;
+}
+
 #white_piece_stand {
 	padding-right: 16px;
 	vertical-align: top;
@@ -28,8 +43,4 @@
 #black_piece_stand {
 	padding-left: 16px;
 	vertical-align: bottom;
-}
-.stand_wrapper {
-	background: #d7bc82;
-	padding: 16px;
 }
