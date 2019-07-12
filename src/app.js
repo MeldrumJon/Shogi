@@ -287,7 +287,11 @@ export default class App {
 				img.onclick = function () {
 					this_.selectPiece(null, piece);
 				}
-				this.boardView.append(img);
+
+				const pieceWrap = document.createElement('span');
+				pieceWrap.className = 'piece_wrap';
+				pieceWrap.append(img);
+				this.boardView.append(pieceWrap);
 			}
 			else if (sq !== 0b1000000) { // DNE square
 				const img = createBlankSqr();
@@ -329,7 +333,11 @@ export default class App {
 				img.onclick = function () {
 					this_.selectPiece(null, piece);
 				}
-				this.bKomadaiView.append(img);
+
+				const pieceWrap = document.createElement('div');
+				pieceWrap.className = 'piece_wrap';
+				pieceWrap.append(img);
+				this.bKomadaiView.append(pieceWrap);
 			}
 		}
 		for (let i = 0; i < position.wPieces.length; ++i) {
@@ -361,9 +369,13 @@ export default class App {
 				img.onclick = function () {
 					this_.selectPiece(null, piece);
 				}
-				this.wKomadaiView.append(img);
+				const pieceWrap = document.createElement('div');
+				pieceWrap.className = 'piece_wrap';
+				pieceWrap.append(img);
+				this.wKomadaiView.append(pieceWrap);
 			}
 		}
+
 		this.pieces = newPieces;
 
 		this.lastMoveIndex = position.count > 0 ? position.history[position.count - 1].toIdx : 0;

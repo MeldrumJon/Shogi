@@ -16,7 +16,8 @@ body {
 	background: #DCC7AA;
 	background-image: url('res/wood.png');
 	padding: 16px;
-	border: #777 solid 1px;
+	border: 1px solid #777;
+    box-shadow: rgba(0, 0, 0, 0.3) 0.5px 1px 2px;
 }
 #white_komadai, #black_komadai {
 	width:116px;
@@ -27,13 +28,17 @@ body {
 #board_wrapper {
 	background: #DCC7AA;
 	background-image: url('res/wood.png');
-	border: #777 solid 1px;
+	border: 1px solid #777;
+    box-shadow: rgba(0, 0, 0, 0.3) 0.5px 1px 2px;
 }
 #board {
 	background: url(res/board.svg) transparent;
 	width:555px;
 	height:555px;
 	position: relative;
+}
+.piece_wrap {
+	filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.8));
 }
 
 #white_piece_stand {

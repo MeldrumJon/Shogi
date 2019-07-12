@@ -30,6 +30,8 @@ function PeerID2URL(id) {
 	return url;
 }
 
+game.gameStart('free', false);
+
 let callbacks = {
 	'wait': (id) => {
 		// const shareURLEl = document.getElementById('share_url');
