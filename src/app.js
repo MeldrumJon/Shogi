@@ -237,18 +237,20 @@ export default class App {
 		}
 
 		if (this.selectView !== null) {
-			const img = document.createElement('span');
+			const img = document.createElement('img');
+			img.src = "res/sel_blue.svg"
 			img.style.width = VIEW_INFO.spacing + 'px';
 			img.style.height = VIEW_INFO.spacing + 'px';
-			img.style.border = '1px solid #00f';
+			// img.style.border = '1px solid #00f';
 
 			drawSelection(img, this.selectView.idx, this.selectView.color);
 		}
 		if (this.destView !== null) {
-			const img = document.createElement('span');
+			const img = document.createElement('img');
+			img.src = "res/sel_red.svg"
 			img.style.width = VIEW_INFO.spacing + 'px';
 			img.style.height = VIEW_INFO.spacing + 'px';
-			img.style.border = '1px solid #f00';
+			// img.style.border = '1px solid #f00';
 
 			drawSelection(img, this.destView.idx, this.destView.color);
 		}
