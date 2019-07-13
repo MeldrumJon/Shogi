@@ -336,6 +336,8 @@ export default class App {
 
 				const pieceWrap = document.createElement('div');
 				pieceWrap.className = 'piece_wrap';
+				pieceWrap.style.position = 'absolute';
+				pieceWrap.style.zIndex = 10-x_offset;
 				pieceWrap.append(img);
 				this.bKomadaiView.append(pieceWrap);
 			}
@@ -371,6 +373,8 @@ export default class App {
 				}
 				const pieceWrap = document.createElement('div');
 				pieceWrap.className = 'piece_wrap';
+				pieceWrap.style.position = 'absolute';
+				pieceWrap.style.zIndex = 10-x_offset;
 				pieceWrap.append(img);
 				this.wKomadaiView.append(pieceWrap);
 			}
