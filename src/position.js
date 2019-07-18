@@ -789,12 +789,12 @@ export default class Position {
 				if (black | white) {
 					return {
 						winner: black ? "white" : "black",
-						reason: "連続王手の千日手",
+						reason: "perpetual check",
 					};
 				} else {
 					return {
 						winner: null,
-						reason: "千日手",
+						reason: "repetition draw",
 					};
 				}
 			}
@@ -803,7 +803,7 @@ export default class Position {
 		if (this.inIgnoreCheck()) {
 			return {
 				winner: this.player === 0b010000 ? "black" : "white",
-				reason: "王手放置",
+				reason: "King captured",
 			};
 		}
 
@@ -811,7 +811,7 @@ export default class Position {
 			if (this.history[this.count-1].fromIdx === 6) {
 				return {
 					winner: this.player === 0b010000 ? "black" : "white",
-					reason: "Checkmate",
+					reason: "checkmate",
 				};
 			} else {
 				return {

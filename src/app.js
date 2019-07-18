@@ -112,10 +112,11 @@ export default class App {
 		this.boardView.append(this.promotionView);
 	}
 
-	constructor(boardView, bKomadaiView, wKomadaiView) {
+	constructor(boardView, bKomadaiView, wKomadaiView, thinkingView) {
 		this.boardView = boardView;
 		this.bKomadaiView = bKomadaiView;
 		this.wKomadaiView = wKomadaiView;
+		this.thinkingView = thinkingView;
 
 		this.selectView = null;
 		this.destView = null;
@@ -449,6 +450,16 @@ export default class App {
 		this.selectView = null;
 		this.destView = null;
 
+		if ((this.gameMode === "sente" | this.gameMode === "gote") 
+				&& position.player === 0b100000
+				&& this.online) {
+			comm.send('move', {
+				fromIdx: (fromIdx > 10) ? 110 - fromIdx : fromIdx,
+				toIdx: (toIdx > 10) ? 110 - toIdx : toIdx,
+				promote: promote
+			});
+		}
+
 		var judgeResult = position.judge();
 		if (judgeResult) {
 			// TODO: send move here too?
@@ -458,17 +469,14 @@ export default class App {
 
 		this.sound && sound[position.check ? "check" : "move"]();
 
-		if ((this.gameMode === "sente" | this.gameMode === "gote") && position.player === 0b100000) {
-			if (!this.online) {
-				window.setTimeout(() => this.moveByAI(), 100); // Delay for sound effects
-			}
-			else {
-				comm.send('move', {
-					fromIdx: (fromIdx > 10) ? 110 - fromIdx : fromIdx,
-					toIdx: (toIdx > 10) ? 110 - toIdx : toIdx,
-					promote: promote
-				});
-			}
+		if ((this.gameMode === "sente" | this.gameMode === "gote") 
+				&& position.player === 0b100000
+				&& !this.online) {
+					if (this.thinkingView) this.thinkingView.style.visibility = "visible";
+			window.setTimeout( () => {
+				this.moveByAI();
+				if (this.thinkingView) this.thinkingView.style.visibility = "hidden";
+			}, 100); // Delay for sound effects
 		}
 	}
 	moveByAI(after) {
@@ -488,7 +496,7 @@ export default class App {
 			this.aiParameter.searchDepth = move.depth;
 
 		if (move === null) {
-			this.gameResult = ["You win!"];
+			this.gameResult = ["You win,"];
 			return;
 		}
 		position.doMove(move);
@@ -520,24 +528,25 @@ export default class App {
 			after();
 	}
 	gameEnd(winner, message) {
-		var reason = message ? "[" + message + "]" : "";
+		var reason = message ? message : "";
 		if (winner === null) {
-			this.gameResult = ["It is a draw.", reason];
+			this.gameResult = "Draw " + '(' + reason + ').';
 		} else {
 			switch (this.gameMode) {
 			case "sente":
 			case "gote":
-				this.gameResult = [winner === "black" ? "You win!" : "You lose.", reason];
+				this.gameResult = (winner === "black") ? "You win! " : "You lose! ";
+				this.gameResult += (reason !== "") ? '(' + reason + ').' : "";
 			break;
 			case "free":
-				this.gameResult = [winner === "black" ? "Black wins!" : "White wins!", reason];
+				this.gameResult = (winner === "black") ? "Black wins! " : "White wins! ";
+				this.gameResult += (reason !== "") ? '(' + reason + ').' : "";
 				break;
 			}
 		}
 		this.sound && sound.gameEnd();
 		this.gameMode = null;
-		alert(this.gameResult);
-		console.log(this.gameResult);
+		window.setTimeout( alert(this.gameResult), 300);
 	}
 	gameStart(mode, online=false) {
 		if (["sente", "gote", "free"].indexOf(mode) === -1)

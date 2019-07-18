@@ -4,12 +4,38 @@ import * as comm from './comm.js'
 const board = document.getElementById('board');
 const bKomadai = document.getElementById('black_komadai');
 const wKomadai = document.getElementById('white_komadai');
+const thinking = document.getElementById('loading_area');
 
-let game = new App(board, bKomadai, wKomadai);
+let game = new App(board, bKomadai, wKomadai, thinking);
 
-game.aiParameter.time = 300;
-game.aiParameter.searchDepth = 5;
-game.aiParameter.randomness = 5;
+function ai_level(level) {
+	game.aiParameter.time = 300*(level+1);
+	game.aiParameter.searchDepth = 5+level;
+	game.aiParameter.randomness = 5;
+	console.log(game.aiParameter);
+}
+ai_level(0);
+
+game.gameStart('sente', false);
+
+/*** Setup DOM ***/
+
+const undoBtn = document.getElementById('undo_button');
+undoBtn.onclick = function () {
+	game.matta();
+}
+
+const levelSelGame = document.getElementById('changeLevelGame');
+// const levelSel = ;
+function levelChange() {
+	ai_level(parseInt(this.value));
+}
+levelSelGame.onchange = levelChange;
+
+const soundChk = document.getElementById('chkSound');
+soundChk.onchange = function() {
+	game.sound = this.checked;
+}
 
 /**
  * Gets the peer ID we want to connect to from the URL.
@@ -30,7 +56,7 @@ function PeerID2URL(id) {
 	return url;
 }
 
-game.gameStart('free', false);
+// game.gameStart('free', false);
 
 let callbacks = {
 	'wait': (id) => {

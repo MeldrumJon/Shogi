@@ -321,7 +321,7 @@ export function think(position, depth, randomness = 0) {
 
 	for (var i = 0; i < mi; i += 5) {
 		if ((moveArray[i+4] & 0b1111) === 0b1000)
-			return "check mated";
+			return "Check mate!";
 
 		position.doMoveFast(moveArray, i);
 		var score = -search(position, -(scoreBase + evalMove(i)),
@@ -394,7 +394,7 @@ export function think_(position, maxDepth, randomness = 0, timeLimit = 1000) {
 
 		for (var i = 0; i < mi; i += 5) {
 			if ((moveArray[i+4] & 0b1111) === 0b1000)
-				throw new Error("check mated");
+				throw new Error("Check mate!");
 
 			position.doMoveFast(moveArray, i);
 			var score = -search(position, -(scoreBase + evalMove(i)),

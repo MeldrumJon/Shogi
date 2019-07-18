@@ -1,21 +1,61 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<meta charset="utf-8">
-<title>Carrot Shogi</title>
-<link rel="stylesheet" href="style.css">
-<script src="https://unpkg.com/peerjs@1.0.0/dist/peerjs.min.js" defer></script>
-<script src="src/main.js" type="module"  defer></script>
+	<meta charset="utf-8">
+	<title>Carrot Shogi</title>
+	<link rel="stylesheet" href="style.css">
+	<script src="https://unpkg.com/peerjs@1.0.0/dist/peerjs.min.js" defer></script>
+	<script src="src/main.js" type="module" defer></script>
 </head>
+
 <body>
+	<div id="wrap">
 
-<table id="game">
-	<tr>
-		<td id="white_piece_stand"><div class="stand_wrapper"><div id="white_komadai"></div></div></td>
-		<td><div id="board_wrapper"><div id="board"></div></div></td>
-		<td id="black_piece_stand"><div class="stand_wrapper"><div id="black_komadai"></div></div></td>
-	</tr>
-</table>
+		<div id="top_options">
+			<div id="loading_area"><img src="res/thinking.gif" width="43" height="11" alt="Thinking..." /></div>
+			<h1>Shogi</h1>
+			<div id="undo_area">
+				<input type="button" class="button" value="Undo" id="undo_button" onclick="retract_click()">
+			</div>
+		</div>
 
+		<table id="game">
+			<tr>
+				<td id="white_piece_stand">
+					<div class="stand_wrapper">
+						<div id="white_komadai"></div>
+					</div>
+				</td>
+				<td>
+					<div id="board_wrapper">
+						<div id="board"></div>
+					</div>
+				</td>
+				<td id="black_piece_stand">
+					<div class="stand_wrapper">
+						<div id="black_komadai"></div>
+					</div>
+				</td>
+			</tr>
+		</table>
+
+		<div id="bottom_options">
+			<div id="skill_change">
+				<label for="changeLevelGame">Computer Skill: </label>
+				<select id="changeLevelGame">
+					<option selected value="0">Beginner</option>
+					<option value="1">Amateur</option>
+					<option value="2">Professional</option>
+				</select>
+			</div>
+			<div id="sound_change">
+				<input type="checkbox" class="checkbox" id="chkSound" checked/><label
+					for="chkSound"> Sounds</label>
+			</div>
+		</div>
+
+	</div>
 </body>
+
 </html>

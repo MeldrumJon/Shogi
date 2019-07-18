@@ -3,8 +3,39 @@
 	padding: 0;
 }
 
-body {
-	font: normal normal normal 14px/1 "Palatino Linotype", "Book Antiqua", Palatino, serif;
+* {
+	margin: 0;
+	padding: 0;
+}
+
+body{
+	font: normal normal normal 16px/1 "Palatino Linotype", "Book Antiqua", Palatino, serif;
+	color: #000;
+	background: #fff;
+}
+
+#wrap {
+	width: fit-content;
+	margin: 0 auto;
+}
+
+#top_options {
+	margin: 0.8rem 0;
+	display: flex;
+	flex-direction: row;
+}
+#top_options #loading_area {
+	text-align: left;
+	flex:1;
+	visibility: hidden;
+}
+#top_options #undo_area {
+	text-align: right;
+	flex: 1;
+}
+#top_options h1 {
+	font-size: 1.1rem;
+	text-align: center;
 }
 
 #game {
@@ -48,4 +79,15 @@ body {
 #black_piece_stand {
 	padding-left: 16px;
 	vertical-align: bottom;
+}
+
+#bottom_options {
+	font-size: 14px;
+	margin-top: 1.2rem;
+	line-height: 1.4rem;
+	text-align: right;
+}
+
+#skill_change {
+	margin-bottom: 0.65rem;
 }
