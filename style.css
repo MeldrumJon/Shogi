@@ -91,3 +91,211 @@ body{
 #skill_change {
 	margin-bottom: 0.65rem;
 }
+
+#shade {
+	transition: opacity linear 0.5s;
+	background: rgba(0, 0, 0, 0.3);
+	position: fixed; /* Relative to view port (If user scrolls, we want the window to still be centered) */
+	top: 0;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	/* Show Shade Normally */
+	opacity: 1;
+	z-index: 100;
+}
+
+.modal {
+	/* padding: 0.4rem; */
+	transition: opacity 0.25s linear 0s;
+	position: absolute;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background: #fff;
+	min-width: 400px;
+	box-shadow: rgba(0, 0, 0, 0.3) 7px 7px 12px;
+	/* Hide modal windows normally */
+	z-index: -10;
+	opacity: 0;
+	top: -50%;
+}
+
+.modal_border {
+	border: #333 1px solid;
+	padding: 1rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	color:#333;
+	border-bottom: #777 1px solid;
+	margin: 1.3rem 0;
+	padding: 0 0em 0.4rem 0;
+}
+h2:first-child {
+	margin: 0 0 1.3rem 0;
+}
+
+select {
+	font-size: 0.8rem;
+	min-width: 100px;
+}
+option {
+	padding: 3px;
+}
+
+#choice_area{
+	text-align: center;
+}
+
+.or_sep {
+	text-transform: lowercase;
+	margin: 0 1.5rem;
+	vertical-align: middle;
+	display: inline-block;
+}
+
+a.big_button {
+	display: inline-block;
+	vertical-align: middle;
+	font-size: 1.2rem;
+	text-align: center;
+	font-weight: bold;
+	text-decoration: none;
+	padding: 0.4em;
+	margin-top: 0.2em;
+	background: #6B7A8F;
+	color: #fff;
+	border: 2px #6B7A8F solid;
+}
+a.big_button:hover {
+	background:#F7882F;
+	border: 2px #F7882F solid;
+}
+a.big_button:active {
+	border: 2px #F7C331 solid;
+}
+
+.modal .input_area {
+	display: flex;
+}
+.modal .input_area .info {
+	flex: 1;
+	padding: 0.5rem;
+	font-size: 1rem;
+	border: solid 1px #777;
+	border-right: none;
+	text-align: center;
+}
+.modal .input_area a {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	line-height: 1;
+	padding: 0.2rem 1rem;
+	font-size: 1.2rem;
+	border: none;
+	background: #6B7A8F;
+	color: #fff;
+	border: 2px #6B7A8F solid;
+	font-weight: bold;
+	text-decoration: none;
+}
+.modal .input_area a:hover {
+	background:#F7882F;
+	border: 2px #F7882F solid;
+}
+.modal .input_area a:active {
+	border: 2px #F7C331 solid;
+}
+
+.continue_area {
+	text-align: right;
+}
+
+#start_comp {
+	display:inline-block;
+	margin-top: 1rem;
+}
+
+#result_msg {
+	margin-bottom: 0.65rem;
+}
+
+/*
+	Web App FSM States:
+Show modal windows:
+		init
+		online_or_comp
+		show_url
+		wait_for_connection
+		disconnected
+		computer_settings
+No modal windows:
+		game_comp
+		game_online
+*/
+
+/* When to hide the shade */
+body.game_comp #shade,
+body.game_online #shade {
+	transition: opacity linear 0.5s;
+	z-index: -20;
+	opacity: 0;
+}
+
+body.results #shade {
+	/* Show Shade Normally */
+	transition: opacity linear 0.5s;
+	opacity: 1;
+	z-index: 100;
+}
+
+body.online_or_comp #online_or_comp,
+body.show_url #show_url,
+body.wait_for_connection #wait_for_connection,
+body.disconnected #disconnected,
+body.computer_settings #computer_settings,
+body.results #results { /* Show popup windows */
+	/* Show windows by opacity transition alone */
+	transition: opacity 0.25s linear 0s;
+	z-index: 110;
+	opacity: 1;
+	top: 50%;
+}
+
+#wrap {
+	visibility: hidden;
+}
+body.game_online #wrap,
+body.game_comp #wrap {
+	visibility: visible;
+}
+
+
+#undo_area,
+#loading_area,
+#sound_change,
+#skill_change,
+h1 {
+	visibility: hidden;
+}
+
+body.game_online #sound_change,
+body.game_online h1 {
+	visibility: visible;
+}
+body.game_online #skill_change {
+	display: none;
+}
+
+body.game_comp #undo_area,
+body.game_comp #sound_change,
+body.game_comp #skill_change,
+body.game_comp h1 {
+	visibility: visible;
+}
+
+#sounds {
+	display: none;
+}

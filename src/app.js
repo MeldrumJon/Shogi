@@ -55,6 +55,39 @@ const SRC_TABLE = {
 var position = new Position();
 
 
+const gameTitle = 'Xiangqi';
+function blinkTitle(message) {
+  var intervalID = null;
+
+  function blink() {
+    document.title = document.title == message ? gameTitle : message;
+  }
+  function clear() {
+    if (intervalID !== null) {
+      clearInterval(intervalID);
+    }
+    intervalID = null;
+    document.title = gameTitle;
+    window.onmousemove = null;
+  };
+
+  clear();
+  blink();
+  intervalID = setInterval(blink, 1000);
+  window.onmousemove = function () {
+    if (document.hasFocus()) {
+      clear();
+    }
+  }
+};
+
+function modal_alert(message) {
+	const body = document.getElementsByTagName("BODY")[0];
+	body.className += ' results';
+	const msgEl = document.getElementById('result_msg');
+	msgEl.innerHTML = message;
+}
+
 // Vue.filter('position', function (piece) {
 // 	var x = piece.x,
 // 	y = piece.y,
@@ -415,8 +448,7 @@ export default class App {
 			break;
 		}
 	}
-	move_(fromIdx, toIdx, promote) {
-		console.log("move_", fromIdx, toIdx, promote);
+	move_(fromIdx, toIdx, promote, received=false) {
 		let turn = (position.player === 0b100000) ? 'black' : 'white'; // Who's turn is this: white or black?
 		if (fromIdx & 0b1111000) {
 			let from = position.board[fromIdx];
@@ -462,9 +494,14 @@ export default class App {
 
 		var judgeResult = position.judge();
 		if (judgeResult) {
-			// TODO: send move here too?
+			if (received) {
+				blinkTitle('Gameover!');
+			}
 			this.gameEnd(judgeResult.winner, judgeResult.reason || "");
 			return;
+		}
+		else if (received) {
+			blinkTitle('Your move!');
 		}
 
 		this.sound && sound[position.check ? "check" : "move"]();
@@ -546,7 +583,7 @@ export default class App {
 		}
 		this.sound && sound.gameEnd();
 		this.gameMode = null;
-		window.setTimeout( alert(this.gameResult), 300);
+		modal_alert(this.gameResult);
 	}
 	gameStart(mode, online=false) {
 		if (["sente", "gote", "free"].indexOf(mode) === -1)
