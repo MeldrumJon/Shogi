@@ -2,6 +2,15 @@
 
 Online Shogi game, based on [Carrot Shogi](https://github.com/carrotflakes/carrot-shogi). Translated into English. Aesthetic improvements. Added the ability to play against human players across the internet using [PeerJS](https://peerjs.com/).
 
+## Testing Locally
+
+1. Install [Node's](https://nodejs.org/en/) http-server package:
+```
+sudo npm install http-server -g
+```
+2. Run `http-server -c-1 [path]` where path points to this folder.
+3. Open localhost:8080 in the browser.
+
 ## Aesthetics
 
 Shogi piece images based on Hari Sheldon's work on [Wikimedia Commons](https://commons.wikimedia.org/wiki/Category:SVG_traditional_shogi_pieces) and are licensed CC-BY-SA-3.0. Piece borders and lighter color kanji layers were removed. The pieces were resized based on their value.
