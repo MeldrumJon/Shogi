@@ -21,4 +21,4 @@ Wood texture based on [JCW's Wood texture at OpenGameArt.com](https://opengamear
 
 ## License
 
-PeerJS is licensed under the [MIT license](https://tldrlegal.com/license/mit-license), and its source code is available [here](https://github.com/peers/peerjs). This project's source code is licensed under the [MIT license](./LICENSE). Images in the `res` directory are licensed [CC-BY-SA-3.0](https://creativecommons.org/licenses/by-sa/3.0/deed.en).
+This project's source code is licensed under the [MIT license](./LICENSE). Images in the `res` directory are licensed [CC-BY-SA-3.0](https://creativecommons.org/licenses/by-sa/3.0/deed.en). PeerJS is licensed under the [MIT license](https://tldrlegal.com/license/mit-license), and its source code is available [here](https://github.com/peers/peerjs).
