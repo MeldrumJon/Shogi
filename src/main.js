@@ -67,6 +67,9 @@ let callbacks = {
 		const connectedEl = document.getElementById('peer-id');
 		waitingEl.style.display = 'none';
 		connectedEl.style.display = 'block';
+
+		const shareTitle = document.getElementById('share-title');
+		shareTitle.innerHTML = 'Share this link with your opponent:';
 	
 		const shareURLEl = document.getElementById('share_url');
 		shareURLEl.innerHTML = PeerID2URL(id).href;
